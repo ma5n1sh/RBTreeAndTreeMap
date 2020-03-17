@@ -28,18 +28,17 @@ public class RBTree<T extends Comparable<T>, V> implements IRedBlackTree<T, V> {
 
 	public void insert(T key, V value) {
 		//creating the node
-		INode node=new RBNode(false);
+		INode<T, V> node=new RBNode<T, V>(false);
 		node.setKey(key);
 		node.setValue(value);
-		node.setColor(INode.RED);
-		node.setRightChild(new RBNode(true));
-		node.setLeftChild(new RBNode(true));
+		node.setRightChild(leaf);
+		node.setLeftChild(leaf);
 		if(root==null){node.setColor(INode.BLACK);
 			root=node;
 			return;
 		}
 		//looking for its place
-		INode temp=root;
+		INode<T, V> temp=root;
 		while(true) {
 			int comp=temp.getKey().compareTo(key);
 			if (comp == 0) {
@@ -60,24 +59,27 @@ public class RBTree<T extends Comparable<T>, V> implements IRedBlackTree<T, V> {
 			node.setParent(temp);
 		}
 		if(temp.getColor()==INode.BLACK){return;}
-		fixUp(node);
+		fixUpInsert(node);
 	}
 
-	private void fixUp(INode<T,V>node){
+	private void fixUpInsert(INode<T,V>node){
 		if(node.getColor()==INode.BLACK){return;}
 		if(node.getParent().getColor()== INode.BLACK){return;}
-		INode uncle=getUncle(node);
-		INode father=node.getParent();
-		INode grandfather=father.getParent();
+		INode<T, V> uncle=getUncle(node);
+		INode<T, V> father=node.getParent();
+		INode<T, V> grandfather=father.getParent();
 		if(uncle.getColor()==INode.RED){
+			if(grandfather == root) {
+				return;
+			}
 			grandfather.setColor(INode.RED);
 			father.setColor(INode.BLACK);
 			uncle.setColor(INode.BLACK);
-			fixUp(grandfather);
+			fixUpInsert(grandfather);
 		}
 		else{
 			if(father.getRightChild()==node){leftRotate(father);
-				fixUp(node);
+				fixUpInsert(node);
 			}
 			else{
 				grandfather.setColor(INode.RED);
@@ -125,8 +127,8 @@ public class RBTree<T extends Comparable<T>, V> implements IRedBlackTree<T, V> {
 		node.setParent(right);
 	}
 	private void rightRotate(INode<T,V> node){
-		INode left=node.getLeftChild();
-		INode parent=node.getParent();
+		INode<T, V> left=node.getLeftChild();
+		INode<T, V> parent=node.getParent();
 		if(left.isNull())return;
 		if(parent!=null) {
 			if (parent.getRightChild() == node) {
@@ -143,10 +145,10 @@ public class RBTree<T extends Comparable<T>, V> implements IRedBlackTree<T, V> {
 	}
 
 	private INode<T, V> getUncle(INode<T, V> node){
-		if(node.getParent()==null)return null;
-		INode parent=node.getParent();
-		if(parent.getRightChild()==node)return parent.getLeftChild();
-		else return parent.getRightChild();
+		if((node != null) && (node.getParent() == null) && (node.getParent().getParent() != null))return null;
+		INode<T, V> parent=node.getParent();
+		if(parent.getParent().getRightChild()==parent)return parent.getParent().getLeftChild();
+		else return parent.getParent().getRightChild();
 	}
 
 	private INode<T, V> getSibling(INode<T, V> node){
