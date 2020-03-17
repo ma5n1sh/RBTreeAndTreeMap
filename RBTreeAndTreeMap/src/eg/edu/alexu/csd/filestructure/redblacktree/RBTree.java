@@ -72,14 +72,18 @@ public class RBTree<T extends Comparable<T>, V> implements IRedBlackTree<T, V> {
 			if(grandfather == root) {
 				return;
 			}
-			grandfather.setColor(INode.RED);
+			if(grandfather!=root){
+				grandfather.setColor(INode.RED);
+			}
 			father.setColor(INode.BLACK);
 			uncle.setColor(INode.BLACK);
 			fixUpInsert(grandfather);
+			return;
 		}
 		else{
 			if(father.getRightChild()==node){leftRotate(father);
 				fixUpInsert(node);
+				return;
 			}
 			else{
 				grandfather.setColor(INode.RED);
